@@ -40,7 +40,14 @@ async function mainLoop() {
   while (true) {
     try {
       if (!inTrade) {
-        const priceRes = await axios.get('https://public-api.birdeye.so/public/price?address=So11111111111111111111111111111111111111112');
+        const priceRes = await axios.get(
+          'https://public-api.birdeye.so/public/price?address=So11111111111111111111111111111111111111112',
+          {
+            headers: {
+              'X-API-KEY': process.env.BIRDEYE_API_KEY || ''
+            }
+          }
+        );
         const priceUsd = priceRes.data?.data?.value || 0;
         const price24hAgo = priceUsd / 1.01; // заглушка на +1% для имитации прироста
         const marketData = {
