@@ -1,3 +1,42 @@
+// package.json
+{
+  "name": "solana-scalper-simulator",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.89.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.3",
+    "googleapis": "^127.0.0",
+    "telegraf": "^4.12.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
+
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+
+// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -69,26 +108,54 @@ async function sellToken(outputMint: string, inputMint: string) {
   return true;
 }
 
-// Пример обработчика событий (дальше вставляется логика от основного бота)
-let lastHandled = 0;
-let skipCount = 0;
-ws.on('message', async (data) => {
-  const now = Date.now();
-  if (now - lastHandled < 3000) {
-    skipCount++;
-    if (skipCount % 10 === 0) console.log(`⚠️ Пропущено ${skipCount} событий из-за throttle`);
+// Работаем только с одной монетой — SOL
+setInterval(async () => {
+  const mintAddress = 'So11111111111111111111111111111111111111112'; // SOL
+  const marketData = {
+    priceChange1m: 3.5, // заглушка
+    volume1m: 25000,
+    liquidity: 80000,
+    tradeCount: 22,
+    isFairLaunch: true
+  };
+
+  const conditionsPassed =
+    marketData.priceChange1m > 3 &&
+    marketData.volume1m > 20000 &&
+    marketData.liquidity > 50000 &&
+    marketData.tradeCount > 15 &&
+    marketData.isFairLaunch;
+
+  if (!conditionsPassed) {
+    console.log('🚫 Условия входа не соблюдены. Пропуск.');
     return;
   }
-  lastHandled = now;
-  const parsed = JSON.parse(data.toString());
-  const logData = parsed?.params?.result?.value?.logs?.join(" ") || "";
-  const programId = parsed?.params?.result?.value?.programId;
-  const isRaydiumSwap = programId === 'RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ';
-  const isSwapLog = logData.includes("Swap") || logData.includes("swap") || logData.includes("swapSuccess");
-  const validEvent = isRaydiumSwap && isSwapLog;
 
-  if (!validEvent) return;
+  const entryPrice = 5.0; // заглушка
+  await notifyTelegram(`✅ BUY: SOL по $${entryPrice}`);
+  await logToSheet([
+    new Date().toISOString(),
+    'BUY',
+    `${entryPrice.toFixed(4)}`,
+    `+${marketData.priceChange1m}% / $${marketData.volume1m} / $${marketData.liquidity} / ${marketData.tradeCount}`,
+    'Entered'
+  ]);
 
-  // заглушка логики (вставляется из основной версии при необходимости)
-  console.log('🔁 [SIMULATION MODE] Событие распознано, обработка симуляции...');
+  await swapToken(mintAddress, mintAddress);
+
+  setTimeout(async () => {
+    const exitPrice = 5.3; // заглушка
+    const percentChange = ((exitPrice - entryPrice) / entryPrice) * 100;
+    await notifyTelegram(`📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`);
+    await logToSheet([
+      new Date().toISOString(),
+      'SELL',
+      `${exitPrice.toFixed(4)}`,
+      `${percentChange.toFixed(2)}%`,
+      percentChange >= 5 ? 'Take Profit' : percentChange <= -3 ? 'Stop Loss' : 'Timeout'
+    ]);
+    await sellToken(mintAddress, mintAddress);
+  }, 3 * 60 * 1000); // 3 минуты
+
+}, 30 * 1000); // Каждые 30 секунд проверка условий
 });
