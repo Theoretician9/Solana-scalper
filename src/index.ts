@@ -41,13 +41,18 @@ async function mainLoop() {
   while (true) {
     try {
       if (!inTrade) {
+        const heliusRes = await axios.get(`https://api.helius.xyz/v0/tokens/metadata?mint=${mintAddress}&api-key=${HELIUS_API_KEY}`);
+        const tokenMeta = heliusRes.data;
+
         const marketData = {
-          priceChange1m: 1.2, // заглушка
-          volume1m: 25000,
-          liquidity: 80000,
-          tradeCount: 22,
-          isFairLaunch: true
+          priceChange1m: ((tokenMeta?.price_usd || 1) / (tokenMeta?.price_24h_ago_usd || 1) - 1) * 100,
+          volume1m: tokenMeta?.volume_24h_usd ? tokenMeta.volume_24h_usd / 1440 : 0,
+          liquidity: tokenMeta?.liquidity_usd || 0,
+          tradeCount: tokenMeta?.tx_count_24h ? tokenMeta.tx_count_24h / 1440 : 0,
+          isFairLaunch: !tokenMeta?.has_honeypot && !tokenMeta?.has_fee
         };
+
+        console.log('📊 Live marketData:', marketData);
 
         const conditionsPassed =
           marketData.priceChange1m > 1 &&
