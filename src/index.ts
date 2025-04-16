@@ -26,14 +26,6 @@ const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
 
 // WebSocket отключён — больше не используется
 
-
-
-
-
-
-
-
-
 // 🧪 Заменённые функции
 async function swapToken(inputMint: string, outputMint: string, amount = 5000000) {
   console.log(`🧪 [SIMULATED BUY] ${inputMint} → ${outputMint} на $5`);
