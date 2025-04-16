@@ -1,19 +1,3 @@
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-
-// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -51,7 +35,6 @@ async function sellToken(outputMint: string, inputMint: string) {
 let inTrade = false;
 async function mainLoop() {
   const mintAddress = 'So11111111111111111111111111111111111111112'; // SOL
-  let inTrade = false;
   let entryPrice = 0;
 
   while (true) {
