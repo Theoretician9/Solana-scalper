@@ -1,25 +1,7 @@
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-
-// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
 import axios from 'axios';
-// import { google } from 'googleapis';
-// import { Telegraf } from 'telegraf';
 
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
 const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
@@ -50,7 +32,7 @@ async function mainLoop() {
           'https://public-api.birdeye.so/public/token_price?address=So11111111111111111111111111111111111111112',
           {
             headers: {
-              'X-API-KEY': process.env.BIRDEYE_API_KEY || ''
+              'X-API-KEY': BIRDEYE_API_KEY || ''
             }
           }
         );
@@ -74,23 +56,20 @@ async function mainLoop() {
           marketData.isFairLaunch;
 
         if (conditionsPassed) {
-          entryPrice = priceUsd
+          entryPrice = priceUsd;
           inTrade = true;
           // Уведомление только при успешной сделке
           const buyMsg = `✅ BUY: SOL по $${entryPrice}`;
           console.log(buyMsg);
-          // await notifyTelegram(buyMsg);
-          // логирование в таблицу отключено
           await swapToken(mintAddress, mintAddress);
 
           // Ожидание 15 минут
           await new Promise(r => setTimeout(r, 900000));
 
-          const exitPrice = priceUsd * 1.03
+          const exitPrice = priceUsd * 1.03;
           const percentChange = ((exitPrice - entryPrice) / entryPrice) * 100;
           const sellMsg = `📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`;
           console.log(sellMsg);
-          // await notifyTelegram(sellMsg);
           console.log('🧾 SELL logged to sheet (mock)');
           await sellToken(mintAddress, mintAddress);
           inTrade = false;
