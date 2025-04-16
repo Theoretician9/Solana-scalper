@@ -3,8 +3,8 @@ dotenv.config();
 
 import { WebSocket } from 'ws';
 import axios from 'axios';
-import { google } from 'googleapis';
-import { Telegraf } from 'telegraf';
+// import { google } from 'googleapis';
+// import { Telegraf } from 'telegraf';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -90,24 +90,18 @@ async function mainLoop() {
           // Уведомление только при успешной сделке
           const buyMsg = `✅ BUY: SOL по $${entryPrice}`;
           console.log(buyMsg);
-          await notifyTelegram(buyMsg);
-          await logToSheet([
-            new Date().toISOString(),
-            'BUY',
-            `${entryPrice.toFixed(4)}`,
-            `+${marketData.priceChange1m}% / $${marketData.volume1m} / $${marketData.liquidity} / ${marketData.tradeCount}`,
-            'Entered'
-          ]);
+          // await notifyTelegram(buyMsg);
+          // логирование в таблицу отключено
           await swapToken(mintAddress, mintAddress);
 
           // Ожидание 3 минуты
-          await new Promise(r => setTimeout(r, 900000));
+          await new Promise(r => setTimeout(r, 180000));
 
           const exitPrice = 5.3; // заглушка
           const percentChange = ((exitPrice - entryPrice) / entryPrice) * 100;
           const sellMsg = `📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`;
           console.log(sellMsg);
-          await notifyTelegram(sellMsg);
+          // await notifyTelegram(sellMsg);
           await logToSheet([
             new Date().toISOString(),
             'SELL',
