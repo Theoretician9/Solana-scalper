@@ -1,3 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+
+// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -41,7 +57,7 @@ async function mainLoop() {
     try {
       if (!inTrade) {
         const priceRes = await axios.get(
-          'https://public-api.birdeye.so/public/price?address=So11111111111111111111111111111111111111112',
+          'https://public-api.birdeye.so/public/token/price?address=So11111111111111111111111111111111111111112',
           {
             headers: {
               'X-API-KEY': process.env.BIRDEYE_API_KEY || ''
