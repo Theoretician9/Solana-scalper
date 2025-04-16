@@ -39,7 +39,7 @@ async function mainLoop() {
     try {
       if (!inTrade) {
         const priceRes = await axios.get(
-          'https://public-api.birdeye.so/public/price/token_price?address=So11111111111111111111111111111111111111112',
+          'https://public-api.birdeye.so/public/token_price?address=So11111111111111111111111111111111111111112',
           {
             headers: {
               'X-API-KEY': process.env.BIRDEYE_API_KEY || ''
