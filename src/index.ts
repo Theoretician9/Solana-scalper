@@ -12,7 +12,15 @@ const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
 const bot = TELEGRAM_BOT_TOKEN ? new Telegraf(TELEGRAM_BOT_TOKEN) : null;
-const ws = new WebSocket(`wss://rpc.helius.xyz/?api-key=${HELIUS_API_KEY}`);
+const ws = new WebSocket(`wss://rpc.helius.xyz/v0/transactions/?api-key=${HELIUS_API_KEY}`);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    type: "subscribe",
+    accounts: [],
+    programs: ["RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ"]
+  }));
+});
 
 async function notifyTelegram(message: string) {
   if (bot && TELEGRAM_CHAT_ID) {
@@ -58,7 +66,11 @@ async function sellToken(outputMint: string, inputMint: string) {
 }
 
 // Пример обработчика событий (дальше вставляется логика от основного бота)
+let lastHandled = 0;
 ws.on('message', async (data) => {
+  const now = Date.now();
+  if (now - lastHandled < 2000) return;
+  lastHandled = now;
   const parsed = JSON.parse(data.toString());
   const logData = parsed?.params?.result?.value?.logs?.join(" ") || "";
   const programId = parsed?.params?.result?.value?.programId;
