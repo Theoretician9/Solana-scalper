@@ -12,13 +12,17 @@ const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
 const bot = TELEGRAM_BOT_TOKEN ? new Telegraf(TELEGRAM_BOT_TOKEN) : null;
-const ws = new WebSocket(`wss://rpc.helius.xyz/v0/transactions/?api-key=${HELIUS_API_KEY}`);
+const ws = new WebSocket(`wss://rpc.helius.xyz/?api-key=${HELIUS_API_KEY}`);
 
 ws.on('open', () => {
   ws.send(JSON.stringify({
-    type: "subscribe",
-    accounts: [],
-    programs: ["RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ"]
+    jsonrpc: "2.0",
+    id: 1,
+    method: "logsSubscribe",
+    params: [
+      { mentions: ["RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ"] },
+      { commitment: "finalized" }
+    ]
   }));
 });
 
