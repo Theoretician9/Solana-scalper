@@ -1,42 +1,3 @@
-// package.json
-{
-  "name": "solana-scalper-simulator",
-  "version": "1.0.0",
-  "main": "src/index.ts",
-  "scripts": {
-    "start": "ts-node src/index.ts"
-  },
-  "dependencies": {
-    "@solana/web3.js": "^1.89.0",
-    "axios": "^1.6.0",
-    "dotenv": "^16.0.3",
-    "googleapis": "^127.0.0",
-    "telegraf": "^4.12.2",
-    "ws": "^8.13.0"
-  },
-  "devDependencies": {
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
-  }
-}
-
-// tsconfig.json
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-
-// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -99,10 +60,13 @@ async function sellToken(outputMint: string, inputMint: string) {
 }
 
 // Работаем только с одной монетой — SOL
+let inTrade = false;
 setInterval(async () => {
+  if (inTrade) return;
+  inTrade = true;
   const mintAddress = 'So11111111111111111111111111111111111111112'; // SOL
   const marketData = {
-    priceChange1m: 3.5, // заглушка
+    priceChange1m: 1.2, // заглушка (измени на 1.2% для срабатывания)
     volume1m: 25000,
     liquidity: 80000,
     tradeCount: 22,
@@ -110,7 +74,7 @@ setInterval(async () => {
   };
 
   const conditionsPassed =
-    marketData.priceChange1m > 3 &&
+    marketData.priceChange1m > 1 &&
     marketData.volume1m > 20000 &&
     marketData.liquidity > 50000 &&
     marketData.tradeCount > 15 &&
@@ -142,9 +106,10 @@ setInterval(async () => {
       'SELL',
       `${exitPrice.toFixed(4)}`,
       `${percentChange.toFixed(2)}%`,
-      percentChange >= 5 ? 'Take Profit' : percentChange <= -3 ? 'Stop Loss' : 'Timeout'
+      percentChange >= 3 ? 'Take Profit' : percentChange <= -1 ? 'Stop Loss' : 'Timeout'
     ]);
     await sellToken(mintAddress, mintAddress);
+    inTrade = false;
   }, 3 * 60 * 1000); // 3 минуты
 
 }, 5 * 1000); // Каждые 30 секунд проверка условий
