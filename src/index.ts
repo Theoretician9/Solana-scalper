@@ -1,3 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+
+// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -41,8 +57,8 @@ async function mainLoop() {
   while (true) {
     try {
       if (!inTrade) {
-        const priceRes = await axios.get('https://price.jup.ag/v4/price?ids=SOL');
-        const priceUsd = priceRes.data?.data?.SOL?.price || 0;
+        const priceRes = await axios.get('https://public-api.birdeye.so/public/price?address=So11111111111111111111111111111111111111112');
+        const priceUsd = priceRes.data?.data?.value || 0;
         const price24hAgo = priceUsd / 1.01; // заглушка на +1% для имитации прироста
         const marketData = {
           priceChange1m: ((priceUsd / price24hAgo) - 1) * 100,
