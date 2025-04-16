@@ -41,8 +41,16 @@ async function mainLoop() {
   while (true) {
     try {
       if (!inTrade) {
-        const heliusRes = await axios.get(`https://api.helius.xyz/v0/tokens/metadata?mint=${mintAddress}&api-key=${HELIUS_API_KEY}`);
-        const tokenMeta = heliusRes.data;
+        const priceRes = await axios.get('https://price.jup.ag/v4/price?ids=SOL');
+        const priceUsd = priceRes.data?.data?.SOL?.price || 0;
+        const price24hAgo = priceUsd / 1.01; // заглушка на +1% для имитации прироста
+        const marketData = {
+          priceChange1m: ((priceUsd / price24hAgo) - 1) * 100,
+          volume1m: 30000, // заглушка
+          liquidity: 60000, // заглушка
+          tradeCount: 20,   // заглушка
+          isFairLaunch: true
+        };
 
         const marketData = {
           priceChange1m: ((tokenMeta?.price_usd || 1) / (tokenMeta?.price_24h_ago_usd || 1) - 1) * 100,
@@ -62,7 +70,7 @@ async function mainLoop() {
           marketData.isFairLaunch;
 
         if (conditionsPassed) {
-          entryPrice = 5.0; // заглушка
+          entryPrice = priceUsd
           inTrade = true;
           // Уведомление только при успешной сделке
           const buyMsg = `✅ BUY: SOL по $${entryPrice}`;
@@ -74,7 +82,7 @@ async function mainLoop() {
           // Ожидание 15 минут
           await new Promise(r => setTimeout(r, 900000));
 
-          const exitPrice = 5.3; // заглушка
+          const exitPrice = priceUsd * 1.03
           const percentChange = ((exitPrice - entryPrice) / entryPrice) * 100;
           const sellMsg = `📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`;
           console.log(sellMsg);
