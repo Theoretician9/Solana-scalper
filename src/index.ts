@@ -20,8 +20,8 @@ ws.on('open', () => {
     id: 1,
     method: "logsSubscribe",
     params: [
-      { mentions: ["RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ"] },
-      { commitment: "finalized" }
+      { filter: { mentions: ["RVKd61ztZW9GdP7UJ4aLq9gGzjDvT9z9K3zjY1NxybQ"] } },
+      { commitment: "processed" }
     ]
   }));
 });
@@ -71,9 +71,14 @@ async function sellToken(outputMint: string, inputMint: string) {
 
 // Пример обработчика событий (дальше вставляется логика от основного бота)
 let lastHandled = 0;
+let skipCount = 0;
 ws.on('message', async (data) => {
   const now = Date.now();
-  if (now - lastHandled < 2000) return;
+  if (now - lastHandled < 3000) {
+    skipCount++;
+    if (skipCount % 10 === 0) console.log(`⚠️ Пропущено ${skipCount} событий из-за throttle`);
+    return;
+  }
   lastHandled = now;
   const parsed = JSON.parse(data.toString());
   const logData = parsed?.params?.result?.value?.logs?.join(" ") || "";
