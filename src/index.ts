@@ -1,19 +1,3 @@
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-
-// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -103,7 +87,10 @@ async function mainLoop() {
         if (conditionsPassed) {
           entryPrice = 5.0; // заглушка
           inTrade = true;
-          await notifyTelegram(`✅ BUY: SOL по $${entryPrice}`);
+          // Уведомление только при успешной сделке
+          const buyMsg = `✅ BUY: SOL по $${entryPrice}`;
+          console.log(buyMsg);
+          await notifyTelegram(buyMsg);
           await logToSheet([
             new Date().toISOString(),
             'BUY',
@@ -118,7 +105,9 @@ async function mainLoop() {
 
           const exitPrice = 5.3; // заглушка
           const percentChange = ((exitPrice - entryPrice) / entryPrice) * 100;
-          await notifyTelegram(`📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`);
+          const sellMsg = `📤 SELL: $${exitPrice.toFixed(4)} (${percentChange.toFixed(2)}%)`;
+          console.log(sellMsg);
+          await notifyTelegram(sellMsg);
           await logToSheet([
             new Date().toISOString(),
             'SELL',
@@ -136,7 +125,7 @@ async function mainLoop() {
       console.error('❌ Ошибка в mainLoop:', err);
     }
 
-    await new Promise(r => setTimeout(r, 5000)); // Пауза 5 секунд
+    await new Promise(r => setTimeout(r, 15000)); // Пауза 5 секунд
   }
 }
 
