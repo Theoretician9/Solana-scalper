@@ -1,19 +1,3 @@
-{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-
-// src/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -21,10 +5,8 @@ import axios from 'axios';
 // import { google } from 'googleapis';
 // import { Telegraf } from 'telegraf';
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
-const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY;
 
 // WebSocket отключён — больше не используется
 
